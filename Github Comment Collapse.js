@@ -7,27 +7,27 @@
 // @icon         https://xinlu.ink/favicon.ico
 // @match        https://*.github.com/*
 // @grant        none
+// @grant        GM_addStyle
+// @grant        GM_addElement
 // ==/UserScript==
+
+GM_addStyle(".x-timeline-comment-action { position: relative; float: right; padding: 8px 4px; width: 16px; height: 16px; margin-left: 4px; cursor: pointer; }");
+GM_addStyle(".x-timeline-comment-action__icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); transition: transform .2s; vertical-align: text-bottom; }");
+GM_addStyle(".x-timeline-comment--active .x-timeline-comment-action__icon { transform: translate(-50%, -50%) rotate(-90deg); }");
+GM_addStyle(".edit-comment-hide { transition: all .2s; }");
+GM_addStyle(".x-timeline-comment--active .edit-comment-hide { height: 0 !important; overflow: hidden; opacity: 0.2; }");
 
 (function () {
   'use strict';
-  // .timeline-comment-header
-  // .edit-comment-hide
-  // .js-discussion
-  // .d-inline-block
-  // <svg t="1620193282766" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3081" width="200" height="200"><path d="M512 714.666667c-8.533333 0-17.066667-2.133333-23.466667-8.533334l-341.333333-341.333333c-12.8-12.8-12.8-32 0-44.8 12.8-12.8 32-12.8 44.8 0l320 317.866667 317.866667-320c12.8-12.8 32-12.8 44.8 0 12.8 12.8 12.8 32 0 44.8L533.333333 704c-4.266667 8.533333-12.8 10.666667-21.333333 10.666667z" p-id="3082"></path></svg>
-  // <svg t="1620193291726" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3218" width="200" height="200"><path d="M904.533333 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0L512 644.266667 179.2 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0-17.066667 17.066667-17.066667 42.666667 0 59.733333l362.666666 362.666667c8.533333 8.533333 19.2 12.8 29.866667 12.8s21.333333-4.266667 29.866667-12.8l362.666666-362.666667c17.066667-17.066667 17.066667-42.666667 0-59.733333z" p-id="3219"></path></svg>
 
   // 定时器，直到目标 DOM 出来结束
   let interval = null;
 
-  interval = setInterval(ready, 3000);
+  interval = setInterval(ready, 2000);
 
   // 页面准备就绪
   function ready() {
-    const actions = document.querySelector(
-      '.timeline-comment-header .timeline-comment-actions'
-    );
+    const actions = document.querySelector('.timeline-comment-header .timeline-comment-actions');
 
     if (actions) {
       clearInterval(interval);
@@ -35,35 +35,84 @@
     }
   }
 
+  // 初始
   function init() {
+    // style();
     header();
+    height();
+    on();
+  }
+
+  // 生成样式表
+  // Content Security Policy: The page’s settings blocked the loading of a resource at inline (“script-src”).
+  function style() {
+    const style = `
+    .x-timeline-comment-action { position: relative; float: right; padding: 8px 4px; width: 16px; height: 16px; margin-left: 4px; cursor: pointer; }
+    .x-timeline-comment-action__icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); transition: transform .2s; vertical-align: text-bottom; }
+    .x-timeline-comment--active .x-timeline-comment-action__icon { transform: translate(-50%, -50%) rotate(-90deg); }
+    .edit-comment-hide { transition: all .2s; }
+    .x-timeline-comment--active .edit-comment-hide { height: 0 !important; overflow: hidden; opacity: 0.2; }
+    `;
+    const headEle = document.head || document.getElementsByTagName("head")[0];
+    const styleEle = document.createElement("style");
+    styleEle.type = "text/css";
+    if (styleEle.styleSheet) {
+      styleEle.styleSheet.cssText = style;
+    } else {
+      styleEle.appendChild(document.createTextNode(style));
+    }
+    headEle.appendChild(styleEle);
   }
 
   // 生成元素
   function icon(element) {
-    const template = `<svg t="1620193291726" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3218" width="200" height="200"><path d="M904.533333 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0L512 644.266667 179.2 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0-17.066667 17.066667-17.066667 42.666667 0 59.733333l362.666666 362.666667c8.533333 8.533333 19.2 12.8 29.866667 12.8s21.333333-4.266667 29.866667-12.8l362.666666-362.666667c17.066667-17.066667 17.066667-42.666667 0-59.733333z" p-id="3219"></path></svg>`;
+    const template = `<svg t="1620193291726" class="x-timeline-comment-action__icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3218" width="16" height="16"><path d="M904.533333 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0L512 644.266667 179.2 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0-17.066667 17.066667-17.066667 42.666667 0 59.733333l362.666666 362.666667c8.533333 8.533333 19.2 12.8 29.866667 12.8s21.333333-4.266667 29.866667-12.8l362.666666-362.666667c17.066667-17.066667 17.066667-42.666667 0-59.733333z" p-id="3219"></path></svg>`;
+    // const ele = document.createElement('i');
+    // ele.classList.add('x-timeline-comment-action');
+    // element.prepend(ele);
+    // Content Security Policy: The page’s settings blocked the loading of a resource at inline (“script-src”).
+    const ele = GM_addElement(element, 'i', { class: 'x-timeline-comment-action' });
+    ele.innerHTML = template;
   }
 
   // 向目标插入元素
-  function header() {}
+  function header() {
+    const headerEl = document.querySelectorAll('.timeline-comment-header');
+    headerEl.forEach((item) => {
+      icon(item);
+    });
+  }
+
+  // 设定内容区高度，为了过渡效果
+  function height() {
+    const items = document.querySelectorAll('.edit-comment-hide');
+    items.forEach((item) => {
+      const { height = 'auto' } = item?.getBoundingClientRect();
+      item.style.height = `${height}px`;
+    });
+  }
 
   // 绑定事件
-  function on() {}
+  function on() {
+    document.addEventListener('click', listener);
+  }
 
-  // 执行操作
-  function collapse() {}
+  function listener(event) {
+    const theTarget = event.target;
+    // collapse
+    collapse(theTarget);
+    // others
+  }
 
-  // #region COMMON
-  function hasClass(el, className) {
-    if (el.classList) {
-      return el.classList.contains(className);
-    } else {
-      return !!el.className.match(
-        new RegExp('(\\s|^)' + className + '(\\s|$)')
-      );
+  // 执行 collapse 操作
+  function collapse(target) {
+    const parent = getParents(target, '.timeline-comment');
+    if (parent) {
+      parent.classList.toggle('x-timeline-comment--active')
     }
   }
 
+  // #region COMMON
   function getParents(elem, selector) {
     // Get the closest matching element
     for (; elem && elem !== document; elem = elem.parentNode) {
