@@ -6,16 +6,15 @@
 // @author       Nicholas Hsiang
 // @icon         https://xinlu.ink/favicon.ico
 // @match        https://*.github.com/*
-// @grant        none
 // @grant        GM_addStyle
 // @grant        GM_addElement
 // ==/UserScript==
 
-GM_addStyle(".x-timeline-comment-action { position: relative; float: right; padding: 8px 4px; width: 16px; height: 16px; margin-left: 4px; cursor: pointer; }");
-GM_addStyle(".x-timeline-comment-action__icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); transition: transform .2s; vertical-align: text-bottom; }");
-GM_addStyle(".x-timeline-comment--active .x-timeline-comment-action__icon { transform: translate(-50%, -50%) rotate(-90deg); }");
-GM_addStyle(".edit-comment-hide { transition: all .2s; }");
-GM_addStyle(".x-timeline-comment--active .edit-comment-hide { height: 0 !important; overflow: hidden; opacity: 0.2; }");
+// GM_addStyle(".x-timeline-comment-action { position: relative; float: right; padding: 8px 4px; width: 16px; height: 16px; margin-left: 4px; cursor: pointer; }");
+// GM_addStyle(".x-timeline-comment-action__icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); transition: transform .2s; vertical-align: text-bottom; }");
+// GM_addStyle(".x-timeline-comment--active .x-timeline-comment-action__icon { transform: translate(-50%, -50%) rotate(-90deg); }");
+// GM_addStyle(".edit-comment-hide { transition: all .2s; }");
+// GM_addStyle(".x-timeline-comment--active .edit-comment-hide { height: 0 !important; overflow: hidden; opacity: 0.2; }");
 
 (function () {
   'use strict';
@@ -37,7 +36,7 @@ GM_addStyle(".x-timeline-comment--active .edit-comment-hide { height: 0 !importa
 
   // 初始
   function init() {
-    // style();
+    style(); /* CSP!!! */
     header();
     height();
     on();
@@ -67,12 +66,13 @@ GM_addStyle(".x-timeline-comment--active .edit-comment-hide { height: 0 !importa
   // 生成元素
   function icon(element) {
     const template = `<svg t="1620193291726" class="x-timeline-comment-action__icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3218" width="16" height="16"><path d="M904.533333 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0L512 644.266667 179.2 311.466667c-17.066667-17.066667-42.666667-17.066667-59.733333 0-17.066667 17.066667-17.066667 42.666667 0 59.733333l362.666666 362.666667c8.533333 8.533333 19.2 12.8 29.866667 12.8s21.333333-4.266667 29.866667-12.8l362.666666-362.666667c17.066667-17.066667 17.066667-42.666667 0-59.733333z" p-id="3219"></path></svg>`;
-    // const ele = document.createElement('i');
-    // ele.classList.add('x-timeline-comment-action');
-    // element.prepend(ele);
-    // Content Security Policy: The page’s settings blocked the loading of a resource at inline (“script-src”).
-    const ele = GM_addElement(element, 'i', { class: 'x-timeline-comment-action' });
+    const ele = document.createElement('i');
+    ele.classList.add('x-timeline-comment-action');
     ele.innerHTML = template;
+    element.prepend(ele);
+    /* Content Security Policy: The page’s settings blocked the loading of a resource at inline (“script-src”). */
+    // const ele = GM_addElement(element, 'i', { class: 'x-timeline-comment-action' });
+    // ele.innerHTML = template;
   }
 
   // 向目标插入元素
