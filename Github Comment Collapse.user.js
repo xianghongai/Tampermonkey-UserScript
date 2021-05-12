@@ -25,7 +25,7 @@ GM_addStyle(".x-timeline-comment--active .edit-comment-hide { height: 0 !importa
   // 定时器，直到目标 DOM 出来结束
   let interval = null;
 
-  interval = setInterval(ready, 2000);
+  interval = setInterval(ready, 1000);
 
   // 页面准备就绪
   function ready() {
