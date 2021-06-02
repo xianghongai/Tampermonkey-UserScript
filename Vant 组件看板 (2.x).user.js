@@ -2,12 +2,13 @@
 // @name:zh-CN   Vant 组件看板 (2.x)
 // @name         Vant Components Dashboard (2.x)
 // @namespace    https://github.com/xianghongai/Tampermonkey-UserScript
-// @version      0.0.1
+// @version      0.0.2
 // @description:zh-CN  更方便的查看 Vant 组件
 // @description  Better view for Vant Component
 // @author       Nicholas Hsiang / 山茶树和葡萄树
 // @icon         https://xinlu.ink/favicon.ico
 // @match        https://youzan.github.io/vant/*
+// @match        https://vant-contrib.gitee.io/vant/*
 // @grant        none
 // ==/UserScript==
 (function () {
@@ -187,7 +188,11 @@
       themeSwitchForm = document.querySelector(".hs-theme-switch__form-control");
     }
 
-    bodyContainer.addEventListener("click", (event) => {
+
+    const toggleMenuBtn = document.querySelector('.hs-dashboard__toggle-menu');
+    const toggleHelpBtn = document.querySelector('.hs-dashboard__toggle-help');
+
+    function handler(event) {
       const targetEle = event.target;
 
       const itemEle = getParents(targetEle, ".hs-dashboard__item");
@@ -216,6 +221,24 @@
         handleHelp();
       } else if (isTheme) {
         handleTheme();
+      }
+    }
+
+    bodyContainer.addEventListener("click", handler);
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Tab' || event.code === 'Tab') {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleMenuBtn.click();
+      }
+      // else if (event.key === 'Escape' || event.code === 'Escape') {
+      //   toggleMenuBtn.click();
+      // }
+      else if (event.key === 'F1' || event.code === 'F1') {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleHelpBtn.click();
       }
     });
   }
@@ -831,7 +854,7 @@
         function (s) {
           var matches = (this.document || this.ownerDocument).querySelectorAll(s),
             i = matches.length;
-          while (--i >= 0 && matches.item(i) !== this) {}
+          while (--i >= 0 && matches.item(i) !== this) { }
           return i > -1;
         };
     }
