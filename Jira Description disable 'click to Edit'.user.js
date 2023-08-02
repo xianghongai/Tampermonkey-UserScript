@@ -1,71 +1,70 @@
 // ==UserScript==
-// @name         Jira Description disable 'click to Edit'
-// @namespace    https://github.com/xianghongai/Tampermonkey-UserScript
-// @version      0.0.1
-// @description  禁用点击编辑
+// @name         Disable Jira 'Click to Edit'
+// @namespace    https://xianghongai.github.io/
+// @version      1.0.0
+// @description  禁用 Jira 点击编辑
 // @author       Nicholas Hsiang
-// @icon         https://xinlu.ink/favicon.ico
-// @match        http*://jira.*.com/*
+// @icon         https://www.qianxin.com/favicon.ico
+// @match        *://jira.*
 // @grant        none
 // ==/UserScript==
 
-(function() {
-  "use strict";
+(function () {
+  'use strict';
+
+  function main() {
+    // 内容区
+    const userContentBlockEl = document.querySelector('.user-content-block');
+
+    userContentBlockEl.addEventListener(
+      'click',
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        return false;
+      },
+    );
+
+    // 可编辑字段
+    const $body = document.querySelector('body');
+
+    $body.addEventListener(
+      'click',
+      (event) => {
+        const targetEle = event.target;
+        const targetEleParent = getParents(targetEle, '.editable-field:not(#description-val)');
+        if (
+          (targetEleParent && hasClass(targetEleParent, '.inactive')) ||
+          (hasClass(targetEle, 'editable-field') && hasClass(targetEle, 'inactive'))
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          return false;
+        }
+      },
+      true
+    );
+  }
+
+  main();
 
   // #region COMMON
   function hasClass(el, className) {
     if (el.classList) {
       return el.classList.contains(className);
-    } else {
-      return !!el.className.match(new RegExp("(\\s|^)" + className + "(\\s|$)"));
     }
+    return !!el.className.match(
+      new RegExp('(\\s|^)' + className + '(\\s|$)')
+    );
   }
 
   function getParents(elem, selector) {
-    // Element.matches() polyfill
-    if (!Element.prototype.matches) {
-      Element.prototype.matches =
-        Element.prototype.matchesSelector ||
-        Element.prototype.mozMatchesSelector ||
-        Element.prototype.msMatchesSelector ||
-        Element.prototype.oMatchesSelector ||
-        Element.prototype.webkitMatchesSelector ||
-        function(s) {
-          var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-            i = matches.length;
-          while (--i >= 0 && matches.item(i) !== this) {}
-          return i > -1;
-        };
-    }
-
-    // Get the closest matching element
     for (; elem && elem !== document; elem = elem.parentNode) {
       if (elem.matches(selector)) return elem;
     }
     return null;
   }
   // #endregion
-
-  const $body = document.querySelector("body");
-
-  $body.addEventListener(
-    "click",
-    event => {
-      const targetEle = event.target;
-      // img
-      // a
-      if (["a", "img"].includes(targetEle.tagName.toLowerCase())) {
-        return true;
-      }
-
-      // other
-      if (getParents(targetEle, ".user-content-block") || hasClass(targetEle, "user-content-block")) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        return false;
-      }
-    },
-    true
-  );
 })();
