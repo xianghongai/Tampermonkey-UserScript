@@ -4,7 +4,7 @@
 // @version      1.0.0
 // @description  禁用 Jira 点击编辑
 // @author       Nicholas Hsiang
-// @icon         https://www.qianxin.com/favicon.ico
+// @icon         https://xinlu.ink/favicon.ico
 // @match        *://jira.*
 // @grant        none
 // ==/UserScript==
