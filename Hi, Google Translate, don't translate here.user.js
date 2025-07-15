@@ -13,6 +13,7 @@
 
 (function () {
   "use strict";
+  console.log(GM_info.script.name);
 
   const toolboxCls = "google-translate__no";
 
